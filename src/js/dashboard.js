@@ -1,4 +1,4 @@
-angular.module('dashboard', [])
+angular.module('dashboard', ['chart.js'])
   .controller('SliderController', function ($scope, $element, $injector) {
 
     $element = angular.element($element)[0];
@@ -6,14 +6,26 @@ angular.module('dashboard', [])
     const
       vm = this,
       $log = $injector.get('$log'),
-      $body = angular.element(document.body),
+      $timeout = $injector.get('$timeout'),
+      $document = $injector.get('$document'),
+      $body = angular.element($document.find('body')),
       $bar = angular.element($element.querySelector('.bar'))[0],
       $dragger = angular.element($element.querySelector('.dragger'))[0],
       minX = 0,
       maxX = $bar.getBoundingClientRect().width,
+
+      /**
+       * Calculates the real amount for given min and max values to directive
+       */
       calculateAmount = () => {
-          vm.amount = Math.round(vm.currentX);
+        $scope.amount = Math.round((vm.currentX / maxX) * ($scope.max - $scope.min) + $scope.min);
+        $timeout(() => $scope.$digest())
       },
+
+      /**
+       * Calculates dragger position relative to left
+       * @returns {number|Number}
+       */
       calculateX = () => {
 
         let
@@ -25,19 +37,21 @@ angular.module('dashboard', [])
         return left;
       };
 
-    window.$dragger = $dragger;
-    window.$bar = $bar;
-
-    $log.debug(`SliderController initialized with amount of ${$scope.amount}`);
+    $scope.amount = Math.round(($scope.max - $scope.min) / 2);
+    $timeout(() => {
+      calculateAmount();
+    });
 
     Object.assign(vm, {
 
-      amount : Math.round(($scope.max - $scope.min) / 2),
-      inTheZone : false,
       dragging : false,
 
       currentX : calculateX(),
 
+      /**
+       * Starts the drag
+       * @param $event
+       */
       mouseDown : ($event) => {
         $event.preventDefault();
         $log.debug('mouseDown', $event);
@@ -46,6 +60,9 @@ angular.module('dashboard', [])
 
     });
 
+    /**
+     * Watches the mouse movement on the page
+     */
     $body.on('mousemove', ($event) => {
       if (vm.dragging === true) {
         $event.preventDefault();
@@ -56,12 +73,14 @@ angular.module('dashboard', [])
           $log.debug('dragging', currentX);
           vm.currentX = currentX;
           calculateAmount();
-          $scope.$digest();
         }
 
       }
     });
 
+    /**
+     * Ends the drag operation
+     */
     $body.on('mouseup', ($event) => {
       if (vm.dragging === true) {
         $event.preventDefault();
@@ -70,17 +89,21 @@ angular.module('dashboard', [])
       }
     });
 
-    $scope.$watch(() => vm.amount, (newVal) => $scope.amount);
-
   })
+  /**
+   * Slider directive
+   *
+   * You can use it with <slider /> tag
+   * Requires amount, min, max, title and measure
+   */
   .directive('slider', () => {
     return {
       scope :       {
-        'amount' :  '=?amount',
-        'min' :     '=min',
-        'max' :     '=max',
-        'title' :   '@title',
-        'measure' : '@measure'
+        'measure' : '@measure',
+        'amount' : '=amount',
+        'title' : '@title',
+        'min' : '=min',
+        'max' : '=max'
       },
       restrict :    'E',
       replace :     true,
@@ -89,6 +112,9 @@ angular.module('dashboard', [])
       controller : 'SliderController'
     };
   })
+  /**
+   * A helper factory for fetching data from weather API
+   */
   .factory('WeatherApiFactory', ($injector) => {
 
     const
@@ -101,11 +127,11 @@ angular.module('dashboard', [])
 
         get : () => (new Promise((resolve, reject) => {
 
-          $log.debug('requesting api');
+          $log.debug('requesting data from weather api');
 
           return $http({
             method : 'GET',
-            url : 'http://private­4945e­weather34.apiary­proxy.com/weather34/rain'
+            url : '//private-4945e-weather34.apiary-proxy.com/weather34/rain'
           }).then((response) => {
 
             if (!response.status) {
@@ -127,6 +153,11 @@ angular.module('dashboard', [])
     return factory;
 
   })
+  /**
+   * Dashboard Controller
+   *
+   * Sets widgets and fetches data when initialized
+   */
   .controller('DashboardController', function ($scope, $injector) {
 
     const
@@ -135,51 +166,147 @@ angular.module('dashboard', [])
 
       $log = $injector.get('$log'),
 
+      $timeout = $injector.get('$timeout'),
+
       weatherApi = $injector.get('WeatherApiFactory'),
 
+      /**
+       * Calculates daily chance of rain
+       * @param pressure
+       * @param temperature
+       * @param amount
+       * @returns {*[]}
+       */
       chanceOfRain = (pressure, temperature, amount) => {
+
+        $log.debug('chanceOfRain started', {pressure, temperature, amount});
 
         var score = Math.log(amount + 1) * Math.log(pressure - 929) * Math.log(temperature - 9);
 
         var mean = Math.min(Math.max(score, 0), 100);
 
-        var upper_bound = Math.min(1.5 * mean, 100);
+        var upperBound = Math.min(1.5 * mean, 100);
 
-        var lower_bound = Math.max(0.5 * mean, 0);
+        var lowerBound = Math.max(0.5 * mean, 0);
 
-        return [lower_bound, mean, upper_bound];
+        return [lowerBound, mean, upperBound];
 
       },
 
-      onChange = () => {
-        vm.chanceOfRain = chanceOfRain(vm.pressureAmount, vm.temperatureAmount, vm.amount);
+      /**
+       * Prepares data for Chance of rain chart
+       * @returns {Array}
+       */
+      setChanceOfRain = () => {
+        if (vm.days.length === 0) {
+          return vm.chanceOfRain;
+        }
+        if (vm.pressureAmount === 0) {
+          return vm.chanceOfRain;
+        }
+        if (vm.temperatureAmount === 0) {
+          return vm.chanceOfRain;
+        }
+
+        vm.days.map((amount, dayNo) => {
+
+          chanceOfRain(vm.pressureAmount, vm.temperatureAmount, amount)
+            .map((chance, chanceNo) => {
+
+              vm.chanceOfRain[chanceNo] = vm.chanceOfRain[chanceNo] || [];
+              vm.chanceOfRain[chanceNo][dayNo] = chance;
+
+            });
+
+        });
+
         $log.debug('chanceOfRain', vm.chanceOfRain);
+
+        $timeout(() => $scope.$digest());
+
+        return vm.chanceOfRain;
+      },
+
+      /**
+       * Prepares data Amount of rainfall chart
+       * It's getting called after API fetch.
+       * @param response
+       */
+      updateWeather = (response) => {
+        vm.days = response.data[0].days.map((dailyInfo) => {
+          vm.labels.push(dailyInfo.day);
+          return dailyInfo.amount;
+        });
+        setChanceOfRain();
+        $log.debug('days', vm.days);
+      },
+
+      /**
+       * Handles errors on API fetching
+       * @param error
+       */
+      failedToUpdateWeather = (error) => {
+        $log.error(error);
+        vm.error = vm.str.apiError;
       };
 
+    Object.assign($scope, {
+      pressureAmount : 0,
+      temperatureAmount : 0
+    });
+
     Object.assign(vm, {
-
-
-
       // locale strings
       str : {
         title : 'Weather Dasboard',
+        apiError : 'Could not fetch the weather data',
         sliderPressure : 'Pressure',
         sliderTemperature : 'Temperature'
       },
 
       error : '',
 
-      pressureAmount : 0,
+      labels : [],
 
-      temperatureAmount : 0,
+      days : [],
 
       chanceOfRain : [],
 
+      /**
+       * Triggers chance of calculation when pressure measure is changed
+       * @param pressureValue
+       */
+      onPressureChange : (pressureValue) => {
+        $log.debug('onPressureChange', pressureValue);
+        vm.pressureAmount = pressureValue;
+        setChanceOfRain();
+      },
+
+      /**
+       * Triggers chance of calculation when temperature measure is changed
+       * @param temperatureValue
+       */
+      onTemperatureChange : (temperatureValue) => {
+        $log.debug('onTemperatureChange', temperatureValue);
+        vm.temperatureAmount = temperatureValue;
+        setChanceOfRain();
+      },
+
+      /**
+       * Initializes measure watchers and fetches weather API
+       */
+      initialize : () => {
+        $scope.$watch(vm.days, (newVal) => setChanceOfRain());
+        $scope.$watch('temperatureAmount', vm.onTemperatureChange);
+        $scope.$watch('pressureAmount', vm.onPressureChange);
+
+        weatherApi
+          .get()
+          .then(updateWeather)
+          .catch(failedToUpdateWeather);
+
+      }
+
     });
-
-    console.log(vm.temperatureAmount);
-
-    $scope.$watch(vm.temperatureAmount, (newVal) => onChange());
-    $scope.$watch(vm.pressureAmount, (newVal) => onChange());
 
   });

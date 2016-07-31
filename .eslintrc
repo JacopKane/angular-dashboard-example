@@ -6,6 +6,7 @@
     "es6": true
   },
   "rules" : {
+    "angular/controller-as" : 1,
     "operator-linebreak" : 0,
     "no-return-assign" : 0,
     "padded-blocks" : 0,

@@ -3,65 +3,73 @@
 
 .app {
 
+  @import 'bs-equal-height';
+
   .widget {
 
-    display : inline-block;
-    width : 40%;
-    height : 30vh;
-    margin : 1%;
+    .slider-container {
+      margin : 0 auto;
+      width: 200px;
+    }
 
     .slider {
 
-      $sliderWidth : 200px;
-      $draggerWidth : 12px;
+      margin : 0 auto;
+      min-height: 50px;
 
-      border-radius: 3px;
+      .bar {
 
-      background : grey;
+        $sliderWidth : 200px;
+        $draggerWidth : 12px;
 
-      position : relative;
+        border-radius: 3px;
 
-      width: $sliderWidth;
-      height: $draggerWidth / 2;
+        background : grey;
 
+        position : relative;
 
-      .dragger {
-
-        cursor : ew-resize;
-
-        background: slategray;
-
-        width : $draggerWidth;
-        height: $draggerWidth;
-
-        border-radius: $draggerWidth;
-        border: 1px solid lightgray;
+        width: $sliderWidth;
+        height: $draggerWidth / 2;
 
 
-        position: absolute;
+        .dragger {
 
-        top : 50%;
-        left : $sliderWidth / 2;
+          cursor : ew-resize;
 
-        margin-top : 0 - ($draggerWidth / 2);
-        margin-left : 0 - ($draggerWidth / 2);
+          background: slategray;
 
-      }
+          width : $draggerWidth;
+          height: $draggerWidth;
 
-      .amount {
-        position: absolute;
-        width : 20px;
+          border-radius: $draggerWidth;
+          border: 1px solid lightgray;
 
-        top : 400%;
-        left : $sliderWidth / 2;
 
-        border-radius: 4px;
+          position: absolute;
 
-        background: white;
+          top : 50%;
+          left : $sliderWidth / 2;
 
-        margin-top : -5px;
-        margin-left : -5px;
-        text-align: center;
+          margin-top : 0 - ($draggerWidth / 2);
+          margin-left : 0 - ($draggerWidth / 2);
+
+        }
+
+        .amount {
+          position: absolute;
+          width : 30px;
+
+          top : 300%;
+          left : $sliderWidth / 2;
+
+          border-radius: 4px;
+
+          background: white;
+
+          margin-left : -15px;
+          text-align: center;
+
+        }
 
       }
 

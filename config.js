@@ -26,7 +26,11 @@ let
   patternJsDist = `${pathJsDist}/**/*.js`,
   patternDemo = `${pathDemo}/**/*`,
   patternSpec = `${pathTest}/**/*.spec.js`,
-  patternVendor = [`${pathVendor}/angular/**/angular.js`];
+  patternVendor = [
+    `${pathVendor}/angular/angular.js`,
+    `${pathVendor}/chart.js/dist/Chart.bundle.js`,
+    `${pathVendor}/angular-chart.js/dist/angular-chart.js`
+  ];
 
 export const config = {
   pathBase,

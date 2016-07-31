@@ -57,7 +57,9 @@
   "keywords": [],
   "author": "Furkan Tunali <mail@furkantunali.com>",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "angular-chart.js": "^1.0.0"
+  },
   "devDependencies": {
     "angular": "^1.5.8",
     "angular-mocks": "^1.5.8",

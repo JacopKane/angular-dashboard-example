@@ -16,6 +16,8 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'dist/js/vendor/angular.js',
+      'dist/js/vendor/Chart.bundle.js',
+      'dist/js/vendor/angular-chart.js',
       'node_modules/angular-mocks/angular-mocks.js',
       'node_modules/babel-polyfill/dist/polyfill.min.js',
       'dist/**/*.js',

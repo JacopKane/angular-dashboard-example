@@ -1,24 +1,28 @@
-<div class="well widget">
+<div>
 
-  <h3>{{title}} <small>[{{measure}}]</small></h3>
+  <div class="slider-container">
 
-  <div class="slider">
+    <h3>{{title}} <small>[{{measure}}]</small></h3>
 
-    <div class="bar">
+    <div class="slider">
 
-      <div
-        class="dragger"
-        data-ng-style="{
+      <div class="bar">
+
+        <div
+          class="dragger"
+          data-ng-style="{
           left : vm.currentX + 'px'
         }"
-        data-ng-mousedown="vm.mouseDown($event)">
-      </div>
+          data-ng-mousedown="vm.mouseDown($event)">
+        </div>
 
-      <span
-        class="amount"
-        data-ng-style="{
-          left : (vm.currentX - 5) + 'px'
-        }">{{vm.amount}}</span>
+        <span
+          class="amount"
+          data-ng-style="{
+          left : (vm.currentX) + 'px'
+        }">{{amount}}</span>
+
+      </div>
 
     </div>
 
