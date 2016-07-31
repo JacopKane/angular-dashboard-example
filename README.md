@@ -1,6 +1,6 @@
 # Angular Dashboard Example
 
-[![Build Status](https://travis-ci.org/JacopKane/angular-dashboard-example.svg?branch=master)](https://travis-ci.org/JacopKane/angular-dashboard-example)
+[![Build Status](https://travis-ci.com/JacopKane/angular-dashboard-example.svg?token=z2TDECNeZJnfTwsFrqin&branch=master)](https://travis-ci.com/JacopKane/angular-dashboard-example)
 
 Angular example app with listing github user repositories
 
