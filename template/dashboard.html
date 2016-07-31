@@ -1,0 +1,57 @@
+<section data-ng-controller="DashboardController as vm" data-ng-init="vm.initialize()">
+
+  <h1>{{vm.str.title}}</h1>
+
+  <hr />
+
+  <div class="row row-eq-height">
+
+    <slider
+      class="well widget col-md-3"
+      data-min="970"
+      data-max="1030"
+      data-title="{{vm.str.sliderPressure}}"
+      data-measure="hPa"
+      data-amount="pressureAmount"
+      data-slider-moved="vm.onPressureChange(pressure)">
+    </slider>
+
+    <div class="well widget col-md-6 col-md-offset-1" data-ng-if="vm.chanceOfRain.length">
+
+      <canvas
+        class="chart chart-line"
+        data-chart-data="vm.chanceOfRain"
+        data-chart-labels="vm.labels">
+      </canvas>
+
+    </div>
+
+  </div>
+
+  <div class="row row-eq-height">
+    <slider
+      class="well widget col-md-3"
+      data-min="10"
+      data-max="35"
+      data-title="{{vm.str.sliderTemperature}}"
+      data-measure="&deg;C"
+      data-amount="temperatureAmount"
+      data-slider-moved="vm.onTemperatureChange(temperature)">
+    </slider>
+
+    <div class="well widget col-md-6 col-md-offset-1" data-ng-if="vm.days.length">
+
+      <canvas id="bar" class="chart chart-bar"
+        data-chart-data="vm.days"
+        data-chart-labels="vm.labels">
+      </canvas>
+
+    </div>
+  </div>
+
+  <div
+    class="alert alert-danger"
+    data-ng-if="vm.error.length"
+    role="alert">{{vm.error}}</div>
+
+</section>

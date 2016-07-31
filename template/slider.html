@@ -1,0 +1,31 @@
+<div>
+
+  <div class="slider-container">
+
+    <h3>{{title}} <small>[{{measure}}]</small></h3>
+
+    <div class="slider">
+
+      <div class="bar">
+
+        <div
+          class="dragger"
+          data-ng-style="{
+          left : vm.currentX + 'px'
+        }"
+          data-ng-mousedown="vm.mouseDown($event)">
+        </div>
+
+        <span
+          class="amount"
+          data-ng-style="{
+          left : (vm.currentX) + 'px'
+        }">{{amount}}</span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
